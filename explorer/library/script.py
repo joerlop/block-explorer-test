@@ -52,7 +52,7 @@ class Script:
 
     # takes a bytes stream and returns a Script object.
     @classmethod
-    def parse(cls, s):
+    def parse(cls, s, coinbase=False):
         # script serialization always starts with the length of the script.
         length = read_varint(s)
         cmds = []
@@ -64,26 +64,48 @@ class Script:
             count += 1
             # this converts the current byte into an int.
             current_byte_as_int = current[0]
+            print('cbai', current_byte_as_int)
             # for a number between 1 and 75, we know the next n bytes are an element.
             if current_byte_as_int >= 1 and current_byte_as_int <= 75:
                 n = current_byte_as_int
-                # push the element into the stack.
-                cmds.append(s.read(n))
-                # update the count.
-                count += n
+                # if tx is coinbase, ScriptSig can be whatever so basically the count = length rule does not apply.
+                # So, if count + n > length, we basically read until the end of the script.
+                if count + n > length and coinbase:
+                    # So we read until the end of the script
+                    cmds.append(s.read(length-count))
+                    count = length
+                else:
+                    # push the element into the stack.
+                    cmds.append(s.read(n))
+                    # update the count.
+                    count += n
             # 76 is OP_PUSHDATA1, so the next byte tells us how many bytes the next element is.
             elif current_byte_as_int == 76:
                 # n is the number of bytes to read
                 n = little_endian_to_int(s.read(1))
-                # push the element into the stack.
-                cmds.append(s.read(n))
-                # update the count.
-                count += n + 1
+                # if tx is coinbase, ScriptSig can be whatever so basically the count = length rule does not apply.
+                # So, if count + n > length, we basically read until the end of the script.
+                if count + n > length and coinbase:
+                    # So we read until the end of the script
+                    cmds.append(s.read(length-count))
+                    count = length
+                else:
+                    # push the element into the stack.
+                    cmds.append(s.read(n))
+                    # update the count.
+                    count += n + 1
             # 77 is OP_PUSHDATA2, so the next 2 bytes tell us how many bytes the next element is.
             elif current_byte_as_int == 77:
                 n = little_endian_to_int(s.read(2))
-                cmds.append(s.read(n))
-                count += n + 2
+                # if tx is coinbase, ScriptSig can be whatever so basically the count = length rule does not apply.
+                # So, if count + n > length, we basically read until the end of the script.
+                if count + n > length and coinbase:
+                    # So we read until the end of the script
+                    cmds.append(s.read(length-count))
+                    count = length
+                else:
+                    cmds.append(s.read(n))
+                    count += n + 2
             # else we push the opcode onto the stack
             else:
                 op_code = current_byte_as_int

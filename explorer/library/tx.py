@@ -112,8 +112,10 @@ class Tx:
         # s.read(n) will return n bytes
         # version has 4 bytes, little-endian, interpret as int
         version = little_endian_to_int(stream.read(4))
+        print('version - tx.py', version)
         # number of inputs
         num_inputs = read_varint(stream)
+        print('num_inputs - tx.py', num_inputs)
         # initialize inputs array
         inputs = []
         # loop num_inputs times to get all inputs from the stream.
@@ -433,9 +435,13 @@ class TxIn:
     def parse(cls, stream):
         # prev_tx is 32 bytes, little endian, interpreted as bytes.
         prev_tx = stream.read(32)[::-1]
+        print("prev_tx - tx.py", prev_tx)
         # prev_index is 4 bytes, little endian, interpreted as integer.
         prev_index = little_endian_to_int(stream.read(4))
-        script_sig = Script.parse(stream)
+        print('prev_index - tx.py', prev_index)
+        # Flag to let the script parser know if this is a coinbase input.
+        coinbase = prev_tx == b'\x00' * 32 and prev_index == 0xffffffff
+        script_sig = Script.parse(stream, coinbase)
         # sequence is 4 bytes, little endian, interpreted as integer.
         sequence = little_endian_to_int(stream.read(4))
         # returns an object of the same class.

@@ -19,7 +19,7 @@ Fill
 """
 # For each block header, ask for the block's information.
 getdata = GetDataMessage()
-getdata.add_data(BLOCK_DATA_TYPE, bytes.fromhex('0000000000000000000995e3397b662e673e275ac904adef1e4e2cfa142a8177'))
+getdata.add_data(BLOCK_DATA_TYPE, bytes.fromhex('0000000000000000000abb40761a9ec52233bd93f8072dddc1a2a48510b29e21'))
 node.send(getdata)
 received_block = node.wait_for(BlockMessage)
 # Save the blocks to the db
@@ -30,6 +30,7 @@ new_row.save()
 for txn in received_block.txns:
     new_tx_row = Transaction(block=new_row, hash_id=txn.id(), version=txn.version, locktime=txn.locktime, segwit=txn.segwit)
     new_tx_row.save()
+    print('new_tx', new_tx_row)
     for tx_in in txn.tx_inputs:
         new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index)
         new_tx_input_row.save()
