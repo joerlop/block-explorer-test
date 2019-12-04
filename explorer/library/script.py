@@ -10,7 +10,8 @@ from helper import (
     read_varint,
     h160_to_p2pkh_address,
     h160_to_p2sh_address,
-    sha256
+    sha256,
+    script_to_bech32
 )
 
 from op import (
@@ -282,7 +283,6 @@ class Script:
             # hash160 is the 3rd cmd
             h160 = self.cmds[2]
             # convert to p2pkh address using h160_to_p2pkh_address (remember testnet)
-            print('addr', h160_to_p2pkh_address(h160, testnet))
             return h160_to_p2pkh_address(h160, testnet)
         elif self.is_p2sh_script_pubkey():  # p2sh
             # hash160 is the 2nd cmd
@@ -290,9 +290,15 @@ class Script:
             # convert to p2sh address using h160_to_p2sh_address (remember testnet)
             return h160_to_p2sh_address(h160, testnet)
         elif self.is_p2wpkh_script_pubkey():
-            print("This")
+            witver = self.cmds[0]
+            script = self.cmds[1]
+            print('bech32 addr', script_to_bech32(script, witver, testnet))
+            return script_to_bech32(script, witver, testnet)
         elif self.is_p2wsh_script_pubkey():
-            print("That")
+            witver = self.cmds[0]
+            script = self.cmds[1]
+            print('bech32 addr', script_to_bech32(script, witver, testnet))
+            return script_to_bech32(script, witver, testnet)
         elif self.cmds[0] == 106:
             return 'OP_RETURN'
         raise ValueError('Unknown ScriptPubKey')
