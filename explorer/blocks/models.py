@@ -26,6 +26,7 @@ class TxInput(models.Model):
     prev_index = models.IntegerField()
     script_sig = models.CharField(max_length=100)
     sequence = models.IntegerField()
+    witness = models.CharField(max_length=100)
 
 class TxOutput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)

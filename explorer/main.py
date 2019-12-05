@@ -34,7 +34,17 @@ for txn in received_block.txns:
     for tx_in in txn.tx_inputs:
         # Check if the input has a witness.
         if hasattr(tx_in, 'witness'):
-            witness = tx_in.witness
+            # This is a list, so we need to serialize it.
+            witness_list = tx_in.witness
+            # The following code serializes the witness.
+            witness = b''
+            for item in tx_in.witness:
+                if type(item) == int:
+                    witness += int_to_little_endian(item, 1)
+                else:
+                    witness += encode_varint(len(item)) + item
+            # We convert it to hex.
+            witness = witness.hex()
         else:
             witness = None
         new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index, script_sig=tx_in.script_sig.serialize().hex()[2:], sequence=tx_in.sequence, witness=witness)
@@ -42,9 +52,3 @@ for txn in received_block.txns:
     for tx_out in txn.tx_outputs:
         new_tx_output_row = TxOutput(transaction=new_tx_row, amount=tx_out.amount, address=tx_out.script_pubkey.address())
         new_tx_output_row.save()
-
-# new_block = Block(received_block.version, received_block.prev_block, received_block.merkle_root, received_block.timestamp, received_block.bits, received_block.nonce)
-# print(new_block.hash().hex())
-
-prev = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x11\xe2\xe1(yw\xe1M\xa1\x8e\x94\x00q\xab\xe7\xa6\xcasfw\x96fz'
-print(prev.hex())
