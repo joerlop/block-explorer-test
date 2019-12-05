@@ -45,6 +45,7 @@ for txn in received_block.txns:
                     witness += encode_varint(len(item)) + item
             # We convert it to hex.
             witness = witness.hex()
+        # If input has no witness attribute, witness = None.
         else:
             witness = None
         new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index, script_sig=tx_in.script_sig.serialize().hex()[2:], sequence=tx_in.sequence, witness=witness)

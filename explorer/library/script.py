@@ -297,7 +297,6 @@ class Script:
     def is_p2wsh_script_pubkey(self):
         return len(self.cmds) == 2 and self.cmds[0] == 0x00 and type(self.cmds[1]) == bytes and len(self.cmds[1]) == 32
 
-
     def is_p2pk_script_pubkey(self):
         return len(self.cmds) == 2 and type(self.cmds[0]) == bytes and self.cmds[1] == 172
 
@@ -327,6 +326,7 @@ class Script:
             return script_to_bech32(script, witver, testnet)
         elif self.is_p2pk_script_pubkey():
             return 'P2PK'
+        # We check if it's an OP_RETURN output.
         elif self.cmds[0] == 106:
             return 'OP_RETURN'
         raise ValueError('Unknown ScriptPubKey')
