@@ -49,7 +49,7 @@ for txn in received_block.txns:
         # If input has no witness attribute, witness = None.
         else:
             witness = None
-        new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index, script_sig=tx_in.script_sig.serialize().hex()[2:], sequence=tx_in.sequence, witness=witness)
+        new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx.hex(), prev_index=tx_in.prev_index, script_sig=tx_in.script_sig.serialize().hex()[2:], sequence=tx_in.sequence, witness=witness)
         new_tx_input_row.save()
     for tx_out in txn.tx_outputs:
         # We need to establish the type of the output.
