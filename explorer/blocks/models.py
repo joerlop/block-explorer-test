@@ -30,7 +30,7 @@ class TxInput(models.Model):
 
 class TxOutput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
-    tx_type = models.CharField(max_length=100)
+    output_type = models.CharField(max_length=100)
     amount = models.IntegerField()
     address = models.CharField(max_length=100)
     script_pubkey = models.CharField(max_length=100)

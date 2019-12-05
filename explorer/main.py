@@ -9,6 +9,7 @@ from blocks.models import BlockRow, Transaction, TxInput, TxOutput
 from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, BlockMessage
 from library.block import Block
 from library.tx import Tx, TxIn, TxOut
+from helper_functions import get_type
 
 # Connect to node
 node = SimpleNode('85.204.96.207')
@@ -51,5 +52,15 @@ for txn in received_block.txns:
         new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index, script_sig=tx_in.script_sig.serialize().hex()[2:], sequence=tx_in.sequence, witness=witness)
         new_tx_input_row.save()
     for tx_out in txn.tx_outputs:
-        new_tx_output_row = TxOutput(transaction=new_tx_row, amount=tx_out.amount, address=tx_out.script_pubkey.address())
+        # We need to establish the type of the output.
+        out_type = get_type(tx_out)
+        # If output is OP_RETURN, address doesn't apply.
+        # Also, we need to find the return data.
+        if out_type = 'OP_RETURN':
+            address = None
+
+        else:
+            address = tx_out.script_pubkey.address()
+            op_return_data = None
+        new_tx_output_row = TxOutput(transaction=new_tx_row, output_type=out_type, amount=tx_out.amount, address=address, script_pubkey=tx_out.script_pubkey.serialize().hex())
         new_tx_output_row.save()

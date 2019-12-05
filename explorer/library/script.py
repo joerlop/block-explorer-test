@@ -300,6 +300,9 @@ class Script:
     def is_p2pk_script_pubkey(self):
         return len(self.cmds) == 2 and type(self.cmds[0]) == bytes and self.cmds[1] == 172
 
+    def is_op_return_pubkey(self):
+        return self.cmds[0] == 106
+
     # Returns the address corresponding to the script
     def address(self, testnet=False):
         print('address', self.cmds)
@@ -327,6 +330,16 @@ class Script:
         elif self.is_p2pk_script_pubkey():
             return 'P2PK'
         # We check if it's an OP_RETURN output.
-        elif self.cmds[0] == 106:
-            return 'OP_RETURN'
+        elif self.is_op_return_pubkey():
+            raise ValueError('Output corresponds to an OP_RETURN')
         raise ValueError('Unknown ScriptPubKey')
+
+    # Get the op return data from an OP_RETURN output.
+    def get_op_return_data(self, testnet=False):
+        if not self.is_op_return_pubkey():
+            raise ValueError('Not OP_RETURN output')
+        else:
+            data = self.cmds[2]
+            data_hex = data.hex()
+            data_str = data_hex.decode("hex")
+            return data_str
