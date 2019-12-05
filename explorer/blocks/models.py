@@ -24,6 +24,8 @@ class TxInput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     prev_tx = models.BinaryField(editable=True)
     prev_index = models.IntegerField()
+    script_sig = models.CharField(max_length=100)
+    sequence = models.IntegerField()
 
 class TxOutput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)

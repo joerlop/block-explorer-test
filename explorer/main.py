@@ -32,7 +32,12 @@ for txn in received_block.txns:
     new_tx_row.save()
     print('new_tx', new_tx_row)
     for tx_in in txn.tx_inputs:
-        new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index)
+        # Check if the input has a witness.
+        if hasattr(tx_in, 'witness'):
+            witness = tx_in.witness
+        else:
+            witness = None
+        new_tx_input_row = TxInput(transaction=new_tx_row, prev_tx=tx_in.prev_tx, prev_index=tx_in.prev_index, script_sig=tx_in.script_sig.serialize().hex()[2:], sequence=tx_in.sequence, witness=witness)
         new_tx_input_row.save()
     for tx_out in txn.tx_outputs:
         new_tx_output_row = TxOutput(transaction=new_tx_row, amount=tx_out.amount, address=tx_out.script_pubkey.address())
