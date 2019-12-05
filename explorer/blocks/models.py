@@ -26,12 +26,12 @@ class TxInput(models.Model):
     prev_index = models.IntegerField()
     script_sig = models.CharField(max_length=100)
     sequence = models.IntegerField()
-    witness = models.CharField(max_length=100)
+    witness = models.CharField(max_length=100, default=None, blank=True, null=True)
 
 class TxOutput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
     output_type = models.CharField(max_length=100)
     amount = models.IntegerField()
-    address = models.CharField(max_length=100)
+    address = models.CharField(max_length=100, default=None, blank=True, null=True)
     script_pubkey = models.CharField(max_length=100)
-    op_return_data = models.CharField(max_length=100, default=None)
+    op_return_data = models.CharField(max_length=100, default=None, blank=True, null=True)

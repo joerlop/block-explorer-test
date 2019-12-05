@@ -56,11 +56,11 @@ for txn in received_block.txns:
         out_type = get_type(tx_out)
         # If output is OP_RETURN, address doesn't apply.
         # Also, we need to find the return data.
-        if out_type = 'OP_RETURN':
+        if out_type == 'OP_RETURN':
             address = None
-
+            op_return_data = tx_out.script_pubkey.get_op_return_data()
         else:
             address = tx_out.script_pubkey.address()
             op_return_data = None
-        new_tx_output_row = TxOutput(transaction=new_tx_row, output_type=out_type, amount=tx_out.amount, address=address, script_pubkey=tx_out.script_pubkey.serialize().hex())
+        new_tx_output_row = TxOutput(transaction=new_tx_row, output_type=out_type, amount=tx_out.amount, address=address, script_pubkey=tx_out.script_pubkey.serialize().hex()[2:], op_return_data=op_return_data)
         new_tx_output_row.save()

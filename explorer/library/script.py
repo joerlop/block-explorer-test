@@ -339,7 +339,9 @@ class Script:
         if not self.is_op_return_pubkey():
             raise ValueError('Not OP_RETURN output')
         else:
-            data = self.cmds[2]
+            data = self.cmds[1]
             data_hex = data.hex()
-            data_str = data_hex.decode("hex")
+            print('data hex', data_hex)
+            data_str = bytes.fromhex(data_hex).decode('utf-8', errors='ignore')
+            print('data str', data_str)
             return data_str
