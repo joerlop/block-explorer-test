@@ -22,7 +22,7 @@ class Transaction(models.Model):
 
 class TxInput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
-    prev_tx = models.BinaryField(editable=True)
+    prev_tx = models.CharField(max_length=100)
     prev_index = models.IntegerField()
     script_sig = models.CharField(max_length=100)
     sequence = models.IntegerField()
