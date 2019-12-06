@@ -98,7 +98,9 @@ class Tx:
     def parse(cls, s, testnet=False):
         s.read(4)
         # if, after version (which is first 4 bytes), we have a 0 byte, it means the transaction is segwit.
-        if s.read(1) == b'\x00':
+        flag = s.read(1)
+        print('flag', flag)
+        if flag == b'\x00':
             parse_method = cls.parse_segwit
         else:
             parse_method = cls.parse_legacy
@@ -112,10 +114,8 @@ class Tx:
         # s.read(n) will return n bytes
         # version has 4 bytes, little-endian, interpret as int
         version = little_endian_to_int(stream.read(4))
-        print('version - tx.py', version)
         # number of inputs
         num_inputs = read_varint(stream)
-        print('num_inputs - tx.py', num_inputs)
         # initialize inputs array
         inputs = []
         # loop num_inputs times to get all inputs from the stream.
@@ -136,6 +136,7 @@ class Tx:
     # Parser when tx is segwit.
     @classmethod
     def parse_segwit(cls, s, testnet=False):
+        print("SEGWIT***************************************")
         version = little_endian_to_int(s.read(4))
         # Marker and flag are 2 bytes after version - page 232.
         marker_and_flag = s.read(2)
@@ -435,10 +436,8 @@ class TxIn:
     def parse(cls, stream):
         # prev_tx is 32 bytes, little endian, interpreted as bytes.
         prev_tx = stream.read(32)[::-1]
-        print("prev_tx - tx.py", prev_tx)
         # prev_index is 4 bytes, little endian, interpreted as integer.
         prev_index = little_endian_to_int(stream.read(4))
-        print('prev_index - tx.py', prev_index)
         # Flag to let the script parser know if this is a coinbase input.
         coinbase = prev_tx == b'\x00' * 32 and prev_index == 0xffffffff
         script_sig = Script.parse(stream, coinbase)

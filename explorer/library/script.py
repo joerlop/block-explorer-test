@@ -64,7 +64,6 @@ class Script:
             count += 1
             # this converts the current byte into an int.
             current_byte_as_int = current[0]
-            print('cbai', current_byte_as_int)
             # for a number between 1 and 75, we know the next n bytes are an element.
             if current_byte_as_int >= 1 and current_byte_as_int <= 75:
                 n = current_byte_as_int
@@ -110,7 +109,6 @@ class Script:
             else:
                 op_code = current_byte_as_int
                 cmds.append(op_code)
-        print('count, length', count, length)
         # script should have consumed exactly the number of bytes expected. If not we raise an error.
         if count != length:
             raise SyntaxError('Parsing script failed.')
@@ -305,9 +303,7 @@ class Script:
 
     # Returns the address corresponding to the script
     def address(self, testnet=False):
-        print('address', self.cmds)
         if self.is_p2pkh_script_pubkey():  # p2pkh
-            print('p2pkh')
             # hash160 is the 3rd cmd
             h160 = self.cmds[2]
             # convert to p2pkh address using h160_to_p2pkh_address (remember testnet)
@@ -320,12 +316,10 @@ class Script:
         elif self.is_p2wpkh_script_pubkey():
             witver = self.cmds[0]
             script = self.cmds[1]
-            print('bech32 addr', script_to_bech32(script, witver, testnet))
             return script_to_bech32(script, witver, testnet)
         elif self.is_p2wsh_script_pubkey():
             witver = self.cmds[0]
             script = self.cmds[1]
-            print('bech32 addr', script_to_bech32(script, witver, testnet))
             return script_to_bech32(script, witver, testnet)
         elif self.is_p2pk_script_pubkey():
             return 'P2PK'
@@ -341,7 +335,5 @@ class Script:
         else:
             data = self.cmds[1]
             data_hex = data.hex()
-            print('data hex', data_hex)
             data_str = bytes.fromhex(data_hex).decode('utf-8', errors='ignore')
-            print('data str', data_str)
             return data_str
