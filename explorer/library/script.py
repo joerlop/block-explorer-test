@@ -52,7 +52,7 @@ class Script:
 
     # takes a bytes stream and returns a Script object.
     @classmethod
-    def parse(cls, s):
+    def parse(cls, s, coinbase=False):
         # script serialization always starts with the length of the script.
         length = read_varint(s)
         cmds = []
@@ -67,28 +67,48 @@ class Script:
             # for a number between 1 and 75, we know the next n bytes are an element.
             if current_byte_as_int >= 1 and current_byte_as_int <= 75:
                 n = current_byte_as_int
-                # push the element into the stack.
-                cmds.append(s.read(n))
-                # update the count.
-                count += n
+                # if tx is coinbase, ScriptSig can be whatever so basically the count = length rule does not apply.
+                # So, if count + n > length, we basically read until the end of the script.
+                if count + n > length and coinbase:
+                    # So we read until the end of the script
+                    cmds.append(s.read(length-count))
+                    count = length
+                else:
+                    # push the element into the stack.
+                    cmds.append(s.read(n))
+                    # update the count.
+                    count += n
             # 76 is OP_PUSHDATA1, so the next byte tells us how many bytes the next element is.
             elif current_byte_as_int == 76:
                 # n is the number of bytes to read
                 n = little_endian_to_int(s.read(1))
-                # push the element into the stack.
-                cmds.append(s.read(n))
-                # update the count.
-                count += n + 1
+                # if tx is coinbase, ScriptSig can be whatever so basically the count = length rule does not apply.
+                # So, if count + n > length, we basically read until the end of the script.
+                if count + n > length and coinbase:
+                    # So we read until the end of the script
+                    cmds.append(s.read(length-count))
+                    count = length
+                else:
+                    # push the element into the stack.
+                    cmds.append(s.read(n))
+                    # update the count.
+                    count += n + 1
             # 77 is OP_PUSHDATA2, so the next 2 bytes tell us how many bytes the next element is.
             elif current_byte_as_int == 77:
                 n = little_endian_to_int(s.read(2))
-                cmds.append(s.read(n))
-                count += n + 2
+                # if tx is coinbase, ScriptSig can be whatever so basically the count = length rule does not apply.
+                # So, if count + n > length, we basically read until the end of the script.
+                if count + n > length and coinbase:
+                    # So we read until the end of the script
+                    cmds.append(s.read(length-count))
+                    count = length
+                else:
+                    cmds.append(s.read(n))
+                    count += n + 2
             # else we push the opcode onto the stack
             else:
                 op_code = current_byte_as_int
                 cmds.append(op_code)
-        print('count, length', count, length)
         # script should have consumed exactly the number of bytes expected. If not we raise an error.
         if count != length:
             raise SyntaxError('Parsing script failed.')
@@ -275,11 +295,15 @@ class Script:
     def is_p2wsh_script_pubkey(self):
         return len(self.cmds) == 2 and self.cmds[0] == 0x00 and type(self.cmds[1]) == bytes and len(self.cmds[1]) == 32
 
+    def is_p2pk_script_pubkey(self):
+        return len(self.cmds) == 2 and type(self.cmds[0]) == bytes and self.cmds[1] == 172
+
+    def is_op_return_pubkey(self):
+        return self.cmds[0] == 106
+
     # Returns the address corresponding to the script
     def address(self, testnet=False):
-        print('address', self.cmds)
         if self.is_p2pkh_script_pubkey():  # p2pkh
-            print('p2pkh')
             # hash160 is the 3rd cmd
             h160 = self.cmds[2]
             # convert to p2pkh address using h160_to_p2pkh_address (remember testnet)
@@ -292,13 +316,24 @@ class Script:
         elif self.is_p2wpkh_script_pubkey():
             witver = self.cmds[0]
             script = self.cmds[1]
-            print('bech32 addr', script_to_bech32(script, witver, testnet))
             return script_to_bech32(script, witver, testnet)
         elif self.is_p2wsh_script_pubkey():
             witver = self.cmds[0]
             script = self.cmds[1]
-            print('bech32 addr', script_to_bech32(script, witver, testnet))
             return script_to_bech32(script, witver, testnet)
-        elif self.cmds[0] == 106:
-            return 'OP_RETURN'
+        elif self.is_p2pk_script_pubkey():
+            return 'P2PK'
+        # We check if it's an OP_RETURN output.
+        elif self.is_op_return_pubkey():
+            raise ValueError('Output corresponds to an OP_RETURN')
         raise ValueError('Unknown ScriptPubKey')
+
+    # Get the op return data from an OP_RETURN output.
+    def get_op_return_data(self, testnet=False):
+        if not self.is_op_return_pubkey():
+            raise ValueError('Not OP_RETURN output')
+        else:
+            data = self.cmds[1]
+            data_hex = data.hex()
+            data_str = bytes.fromhex(data_hex).decode('utf-8', errors='ignore')
+            return data_str

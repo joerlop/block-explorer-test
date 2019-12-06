@@ -13,6 +13,7 @@ from .helper import (
     int_to_little_endian,
     little_endian_to_int,
     read_varint,
+    bytes_to_bit_field
 )
 
 TX_DATA_TYPE = 1
@@ -120,8 +121,8 @@ class VersionMessage:
 
     command = b'version'
 
-    def __init__(self, version=70015, services=0, timestamp=None, receiver_services=0,
-                 receiver_ip=b'\x00\x00\x00\x00', receiver_port=8333, sender_services=0,
+    def __init__(self, version=70015, services=b'\x00\x00\x00\x01\x00\x00\x00\x00', timestamp=None, receiver_services=b'\x00\x00\x00\x01\x00\x00\x00\x00',
+                 receiver_ip=b'\x00\x00\x00\x00', receiver_port=8333, sender_services=b'\x00\x00\x00\x01\x00\x00\x00\x00',
                  sender_ip=b'\x00\x00\x00\x00', sender_port=8333, nonce=None,
                  user_agent=b'programmingbitcoin:0.1', latest_block=0, relay=False):
         # Identifies protocol version being used by the node.
@@ -157,12 +158,15 @@ class VersionMessage:
     # returns the VersionMessage in bytes format.
     def serialize(self):
         result = int_to_little_endian(self.version, 4)
-        result += int_to_little_endian(self.services, 8)
+        result += self.services
+        # result += int_to_little_endian(self.services, 8)
         result += int_to_little_endian(self.timestamp, 8)
-        result += int_to_little_endian(self.receiver_services, 8)
+        result += self.receiver_services
+        # result += int_to_little_endian(self.receiver_services, 8)
         result += b'\x00' * 10 + b'\xff\xff' + self.receiver_ip
         result += int_to_little_endian(self.receiver_port, 2)
-        result += int_to_little_endian(self.sender_services, 8)
+        result += self.sender_services
+        # result += int_to_little_endian(self.sender_services, 8)
         result += b'\x00' * 10 + b'\xff\xff' + self.sender_ip
         result += int_to_little_endian(self.sender_port, 2)
         result += self.nonce
@@ -365,9 +369,7 @@ class BlockMessage:
 
     @classmethod
     def parse(cls, stream):
-        print("Here!")
         version = little_endian_to_int(stream.read(4))
-        print('version', version)
         prev_block = stream.read(32)[::-1]
         merkle_root = stream.read(32)[::-1]
         timestamp = little_endian_to_int(stream.read(4))
@@ -375,7 +377,6 @@ class BlockMessage:
         nonce = stream.read(4)
         txn_count = read_varint(stream)
         txns = []
-        print('count', txn_count)
         for _ in range(txn_count):
             txns.append(Tx.parse(stream))
         return cls(version, prev_block, merkle_root, timestamp, bits, nonce, txn_count, txns)
@@ -450,7 +451,10 @@ class SimpleNode:
             print('command', command)
             # we know how to respond to version and ping, handle that here.
             if command == VersionMessage.command:
+                print('VersionMessage', envelope.payload)
                 self.send(VerAckMessage())
+                version_message = command_to_class[command].parse(envelope.stream())
+                print(version_message.services)
             elif command == PingMessage.command:
                 self.send(PongMessage(envelope.payload))
         # return the envelope parsed as a member of the right message class.

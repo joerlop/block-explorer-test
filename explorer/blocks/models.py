@@ -22,10 +22,16 @@ class Transaction(models.Model):
 
 class TxInput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
-    prev_tx = models.BinaryField(editable=True)
+    prev_tx = models.CharField(max_length=100)
     prev_index = models.IntegerField()
+    script_sig = models.CharField(max_length=100)
+    sequence = models.IntegerField()
+    witness = models.CharField(max_length=100, default=None, blank=True, null=True)
 
 class TxOutput(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
+    output_type = models.CharField(max_length=100)
     amount = models.IntegerField()
-    address = models.CharField(max_length=100)
+    address = models.CharField(max_length=100, default=None, blank=True, null=True)
+    script_pubkey = models.CharField(max_length=100)
+    op_return_data = models.CharField(max_length=100, default=None, blank=True, null=True)
