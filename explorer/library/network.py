@@ -121,10 +121,10 @@ class VersionMessage:
 
     command = b'version'
 
-    def __init__(self, version=70015, services=b'\x00\x00\x00\x01\x00\x00\x00\x00', timestamp=None, receiver_services=b'\x00\x00\x00\x01\x00\x00\x00\x00',
-                 receiver_ip=b'\x00\x00\x00\x00', receiver_port=8333, sender_services=b'\x00\x00\x00\x01\x00\x00\x00\x00',
+    def __init__(self, version=70015, services=b'\r\x04\x00\x00\x00\x00\x00\x00', timestamp=None, receiver_services=b'\r\x04\x00\x00\x00\x00\x00\x00',
+                 receiver_ip=b'\x00\x00\x00\x00', receiver_port=8333, sender_services=b't\xfa\x0fG\r\x04\x00\x00',
                  sender_ip=b'\x00\x00\x00\x00', sender_port=8333, nonce=None,
-                 user_agent=b'programmingbitcoin:0.1', latest_block=0, relay=False):
+                 user_agent=b'/Satoshi:0.18.1/', latest_block=0, relay=False):
         # Identifies protocol version being used by the node.
         self.version = version
         # features to be enabled for this connection.
@@ -182,12 +182,18 @@ class VersionMessage:
     @classmethod
     def parse(cls, stream):
         version = little_endian_to_int(stream.read(4))
-        services = little_endian_to_int(stream.read(8))
+        services_bytes = stream.read(8)
+        print('bitfield', bytes_to_bit_field(services_bytes))
+        services = little_endian_to_int(services_bytes)
         timestamp = little_endian_to_int(stream.read(8))
-        receiver_services = little_endian_to_int(stream.read(8))
+        receiver_services_bytes = stream.read(8)
+        print('rs bitfield', bytes_to_bit_field(receiver_services_bytes))
+        receiver_services = little_endian_to_int(receiver_services_bytes)
         receiver_ip = stream.read(12)
         receiver_port = little_endian_to_int(stream.read(2))
-        sender_services = little_endian_to_int(stream.read(8))
+        sender_services_bytes = stream.read(8)
+        print('ss bitfield', bytes_to_bit_field(sender_services_bytes))
+        sender_services = little_endian_to_int(sender_services_bytes)
         sender_ip = stream.read(12)
         sender_port = little_endian_to_int(stream.read(2))
         nonce = stream.read(8)
@@ -453,8 +459,6 @@ class SimpleNode:
             if command == VersionMessage.command:
                 print('VersionMessage', envelope.payload)
                 self.send(VerAckMessage())
-                version_message = command_to_class[command].parse(envelope.stream())
-                print(version_message.services)
             elif command == PingMessage.command:
                 self.send(PongMessage(envelope.payload))
         # return the envelope parsed as a member of the right message class.
@@ -465,6 +469,10 @@ class SimpleNode:
     def handshake(self):
         # First step is to send a version message to the node we want to connect to.
         version = VersionMessage()
+        print('bitfield 2', bytes_to_bit_field(version.services))
+        print('rs bitfield 2', bytes_to_bit_field(version.receiver_services))
+        print('ss bitfield 2', bytes_to_bit_field(version.sender_services))
         self.send(version)
+        version_msg = self.wait_for(VersionMessage)
         # The node we are connecting to receives the version message and responds with a verack message.
         self.wait_for(VerAckMessage)

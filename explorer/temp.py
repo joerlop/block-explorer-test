@@ -15,9 +15,5 @@ from helper_functions import get_type
 temp = b'<J\xca#\xe3B\x17\x94\xf5\xf3\x8f\n>9[\xe7\xfb{\xb5\xf5\xc55\x8a\xe0}W\x92\xfa\xcd\xa6\x91Q'
 print(temp.hex())
 
-bitfield = [0, 0, 0, 0, 1, 0, 0, 0]
-print(bit_field_to_bytes(bitfield))
-
-b'\x00\x00\x00\x01\x00\x00\x00\x00'
-
-print('int', int.from_bytes(b'\x10', byteorder='big'))
+bitfield = [0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+print('bytes', bit_field_to_bytes(bitfield))

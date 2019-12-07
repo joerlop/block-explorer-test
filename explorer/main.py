@@ -6,13 +6,13 @@ import django
 django.setup()
 
 from blocks.models import BlockRow, Transaction, TxInput, TxOutput 
-from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, TX_DATA_TYPE, BlockMessage
+from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, TX_DATA_TYPE, BlockMessage, VersionMessage
 from library.block import Block
 from library.tx import Tx, TxIn, TxOut
 from helper_functions import get_type
 
 # Connect to node
-node = SimpleNode('161.97.250.20')
+node = SimpleNode('116.58.171.67')
 node.handshake()
 # Get all the blocks, starting from the genesis block.
 """
