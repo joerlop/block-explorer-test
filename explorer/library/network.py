@@ -20,6 +20,7 @@ TX_DATA_TYPE = 1
 BLOCK_DATA_TYPE = 2
 FILTERED_BLOCK_DATA_TYPE = 3
 COMPACT_BLOCK_DATA_TYPE = 4
+MSG_WITNESS_BLOCK = 0x40000002
 
 NETWORK_MAGIC = b'\xf9\xbe\xb4\xd9'
 TESTNET_NETWORK_MAGIC = b'\x0b\x11\x09\x07'
@@ -122,8 +123,8 @@ class VersionMessage:
     command = b'version'
 
     def __init__(self, version=70015, services=b'\r\x04\x00\x00\x00\x00\x00\x00', timestamp=None, receiver_services=b'\r\x04\x00\x00\x00\x00\x00\x00',
-                 receiver_ip=b'\x00\x00\x00\x00', receiver_port=8333, sender_services=b't\xfa\x0fG\r\x04\x00\x00',
-                 sender_ip=b'\x00\x00\x00\x00', sender_port=8333, nonce=None,
+                 receiver_ip=b'\x00\x00\x00\x00', receiver_port=8333, sender_services=b'\r\x04\x00\x00\x00\x00\x00\x00',
+                 sender_ip=b'\x7f\x00\x00\x01', sender_port=8333, nonce=None,
                  user_agent=b'/Satoshi:0.18.1/', latest_block=0, relay=False):
         # Identifies protocol version being used by the node.
         self.version = version
