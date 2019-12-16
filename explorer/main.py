@@ -6,7 +6,7 @@ import django
 django.setup()
 
 from blocks.models import BlockRow, Transaction, TxInput, TxOutput 
-from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, TX_DATA_TYPE, BlockMessage, VersionMessage, MSG_WITNESS_BLOCK
+from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, TX_DATA_TYPE, BlockMessage, VersionMessage, MSG_WITNESS_BLOCK, GetHeadersMessage, HeadersMessage
 from library.block import Block
 from library.tx import Tx, TxIn, TxOut
 from library.helper import encode_varint, int_to_little_endian
@@ -17,11 +17,16 @@ node = SimpleNode('93.89.84.93')
 node.handshake()
 # Get all the blocks, starting from the genesis block.
 """
-Fill
+Get all block headers starting from the first one.
 """
+getheaders = GetHeadersMessage(start_block=bytes.fromhex('000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'))
+node.send(getheaders)
+received_headers = node.wait_for(HeadersMessage)
+print('received headers', received_headers)
+block = received_headers.blocks[0].hash()
 # For each block header, ask for the block's information.
 getdata = GetDataMessage()
-getdata.add_data(MSG_WITNESS_BLOCK, bytes.fromhex('000000000000000000158ceac0cab2451d26df2d0e356549e2f410b15c364466'))
+getdata.add_data(MSG_WITNESS_BLOCK, block)
 node.send(getdata)
 received_block = node.wait_for(BlockMessage)
 """ Save the blocks to the db """
