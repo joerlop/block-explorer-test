@@ -25,11 +25,12 @@ received_headers = node.wait_for(HeadersMessage)
 print('received headers', received_headers)
 # For each block header, ask for the block's information.
 for block in received_headers.blocks:
+    # We check that the received block comes after the previous block in the blockchain.
     if len(BlockRow.objects.all()) > 0:
-        print('hash id', BlockRow.objects.all().order_by("-id")[0].hash_id)
-        print('prev block', block.prev_block.hex())
         if BlockRow.objects.all().order_by("-id")[0].hash_id != block.prev_block.hex():
             raise ValueError("Block isn't the next one in the blockchain.")
+    if block.check_pow() is False:
+        raise ValueError('Bad PoW for current block.')
     block = block.hash()
     getdata = GetDataMessage()
     getdata.add_data(MSG_WITNESS_BLOCK, block)
