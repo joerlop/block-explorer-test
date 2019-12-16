@@ -13,13 +13,19 @@ from library.helper import encode_varint, int_to_little_endian
 from helper_functions import get_type
 
 # Connect to node
-node = SimpleNode('93.89.84.93')
+node = SimpleNode('46.248.170.225')
 node.handshake()
 # Get all the blocks, starting from the genesis block.
 """
 Get all block headers starting from the first one.
 """
-getheaders = GetHeadersMessage(start_block=bytes.fromhex('000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'))
+# If there are no objects in the db, we start asking for headers from the genesis block.
+if len(BlockRow.objects.all()) == 0:
+    getheaders = GetHeadersMessage(start_block=bytes.fromhex('000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'))
+# Else we start from the last added block.
+else:
+    block_hash = BlockRow.objects.all().order_by("-id")[0].hash_id
+    getheaders = GetHeadersMessage(start_block=bytes.fromhex(block_hash))
 node.send(getheaders)
 received_headers = node.wait_for(HeadersMessage)
 print('received headers', received_headers)
@@ -40,7 +46,7 @@ for block in received_headers.blocks:
     # First I create a Block object to be able to get its id.
     new_block = Block(received_block.version, received_block.prev_block, received_block.merkle_root, received_block.timestamp, received_block.bits, received_block.nonce)
     # Then I create the row object to save in the db.
-    new_row = BlockRow(hash_id=new_block.hash().hex(), version=received_block.version, prev_block=received_block.prev_block.hex(), merkle_root=received_block.merkle_root.hex(), timestamp=received_block.timestamp, bits=received_block.bits.hex(), nonce=received_block.nonce.hex(), txn_count=received_block.txn_count)
+    new_row = BlockRow(hash_id=new_block.hash().hex(), version=received_block.version, prev_block=received_block.prev_block.hex(), merkle_root=received_block.merkle_root.hex(), timestamp=received_block.timestamp, bits=received_block.bits[::-1].hex(), nonce=received_block.nonce[::-1].hex(), txn_count=received_block.txn_count)
     new_row.save()
     # Save each of the block's txs to the db.
     count = 0
