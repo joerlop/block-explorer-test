@@ -6,13 +6,14 @@ import django
 django.setup()
 
 from blocks.models import BlockRow, Transaction, TxInput, TxOutput 
-from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, TX_DATA_TYPE, BlockMessage, VersionMessage
+from library.network import SimpleNode, GetDataMessage, BLOCK_DATA_TYPE, TX_DATA_TYPE, BlockMessage, VersionMessage, MSG_WITNESS_BLOCK
 from library.block import Block
 from library.tx import Tx, TxIn, TxOut
+from library.helper import encode_varint, int_to_little_endian
 from helper_functions import get_type
 
 # Connect to node
-node = SimpleNode('116.58.171.67')
+node = SimpleNode('93.89.84.93')
 node.handshake()
 # Get all the blocks, starting from the genesis block.
 """
@@ -20,7 +21,7 @@ Fill
 """
 # For each block header, ask for the block's information.
 getdata = GetDataMessage()
-getdata.add_data(BLOCK_DATA_TYPE, bytes.fromhex('000000000000000000158ceac0cab2451d26df2d0e356549e2f410b15c364466'))
+getdata.add_data(MSG_WITNESS_BLOCK, bytes.fromhex('000000000000000000158ceac0cab2451d26df2d0e356549e2f410b15c364466'))
 node.send(getdata)
 received_block = node.wait_for(BlockMessage)
 """ Save the blocks to the db """
@@ -43,11 +44,14 @@ for txn in received_block.txns:
             witness = b''
             for item in tx_in.witness:
                 if type(item) == int:
-                    witness += int_to_little_endian(item, 1)
+                    serialized_item = int_to_little_endian(item, 1)
+                    # We check that the item is not empty.
+                    if serialized_item != b'\x00':
+                        witness += serialized_item
                 else:
                     witness += encode_varint(len(item)) + item
             # We convert it to hex.
-            witness = witness.hex()
+            witness = witness.hex()[2:]
         # If input has no witness attribute, witness = None.
         else:
             witness = None

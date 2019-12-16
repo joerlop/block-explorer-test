@@ -17,3 +17,7 @@ print(temp.hex())
 
 bitfield = [0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 print('bytes', bit_field_to_bytes(bitfield))
+
+ip = '127.0.0.1'
+ip_as_bytes = bytes(map(int, ip.split('.')))
+print(ip_as_bytes)
