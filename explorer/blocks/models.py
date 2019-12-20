@@ -3,13 +3,13 @@ from django.db import models
 # Create your models here.
 
 class BlockRow(models.Model):
-    hash_id = models.CharField(max_length=100)
+    hash_id = models.CharField(max_length=100, unique=True)
     version = models.IntegerField()
-    prev_block = models.BinaryField(editable=True)
-    merkle_root = models.BinaryField(editable=True)
+    prev_block = models.CharField(max_length=100)
+    merkle_root = models.CharField(max_length=100)
     timestamp = models.IntegerField()
-    bits = models.BinaryField(editable=True)
-    nonce = models.BinaryField(editable=True)
+    bits = models.CharField(max_length=100)
+    nonce = models.CharField(max_length=100)
     txn_count = models.IntegerField()
 
 
