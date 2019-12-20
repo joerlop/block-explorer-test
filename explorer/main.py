@@ -17,7 +17,7 @@ node = SimpleNode('46.248.170.225')
 node.handshake()
 # Get all the blocks, starting from the genesis block.
 """
-Get all block headers starting from the first one.
+Get all block headers starting from the first one..
 """
 while True:
     # If there are no objects in the db, we start asking for headers from the genesis block.
