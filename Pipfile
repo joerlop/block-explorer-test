@@ -11,6 +11,8 @@ requests = "*"
 django-heroku = "*"
 gunicorn = "*"
 psycopg2 = "*"
+whitenoise = "*"
+dj-database-url = "*"
 
 [requires]
 python_version = "3.8"
