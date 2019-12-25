@@ -6,15 +6,14 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "*"
-requests = "*"
-django-heroku = "*"
 gunicorn = "*"
 psycopg2 = "*"
+django-heroku = "*"
+requests = "*"
+python-dotenv = "*"
 whitenoise = "*"
 dj-database-url = "*"
-dotenv = "*"
-python-dotenv = "*"
+Django = "*"
 
 [requires]
 python_version = "3.8"
