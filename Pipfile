@@ -13,6 +13,8 @@ gunicorn = "*"
 psycopg2 = "*"
 whitenoise = "*"
 dj-database-url = "*"
+dotenv = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.8"
