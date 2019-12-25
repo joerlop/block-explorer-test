@@ -1,2 +1,2 @@
 python explorer/manage.py migrate
-web: gunicorn explorer.wsgi --log-file -
+web: gunicorn explorer.explorer.wsgi --log-file -
