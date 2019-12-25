@@ -1,2 +1,2 @@
-python manage.py migrate
+python explorer/manage.py migrate
 web: gunicorn gettingstarted.wsgi --log-file -
