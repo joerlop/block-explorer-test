@@ -7,6 +7,7 @@ from blocks.models import BlockRow, Transaction
 def blocks(request):
     
     blocks = BlockRow.objects.all()
+    print(blocks)
     return blocks
 
 def transactions(request):
