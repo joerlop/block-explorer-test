@@ -20,4 +20,5 @@ import blocks.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("blocks/",  blocks.views.blocks, name="blocks"),
+    path("transactions/",  blocks.views.transactions, name="transactions"),
 ]
