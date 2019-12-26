@@ -7,9 +7,9 @@ from blocks.models import BlockRow, Transaction
 def blocks(request):
     
     blocks = BlockRow.objects.all()
-    return render(request, "blocks.html", {"Blocks": blocks})
+    return blocks
 
 def transactions(request):
     
     txns = Transaction.objects.all()
-    return render(request, "txns.html", {"Txns": txns})
+    return txns
