@@ -1,11 +1,11 @@
 import hashlib
 import math
-from ecc import S256Point, Signature
+from .ecc import S256Point, Signature
 from logging import getLogger
 
 from unittest import TestCase
 
-from helper import (
+from .helper import (
     hash160,
     hash256,
 )

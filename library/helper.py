@@ -1,7 +1,7 @@
 from unittest import TestSuite, TextTestRunner
 
 import hashlib
-import bech32
+from .bech32 import *
 
 BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 SIGHASH_ALL = 1

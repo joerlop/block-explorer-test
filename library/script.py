@@ -3,7 +3,7 @@ from logging import getLogger
 from unittest import TestCase
 import hashlib
 
-from helper import (
+from .helper import (
     encode_varint,
     int_to_little_endian,
     little_endian_to_int,
@@ -14,7 +14,7 @@ from helper import (
     script_to_bech32
 )
 
-from op import (
+from .op import (
     OP_CODE_FUNCTIONS,
     OP_CODE_NAMES,
     op_hash160,

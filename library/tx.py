@@ -1,11 +1,11 @@
 from io import BytesIO
 from unittest import TestCase
-from script import Script, p2pkh_script
+from .script import Script, p2pkh_script
 
 import json
 import requests
 
-from helper import (
+from .helper import (
     hash256,
     hash160,
     int_to_little_endian,
@@ -15,7 +15,7 @@ from helper import (
     SIGHASH_ALL
 )
 
-from ecc import (PrivateKey)
+from .ecc import (PrivateKey)
 
 # class to be able to access the UTXO set end look up individual transactions and be able to get input amounts.
 

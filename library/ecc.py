@@ -1,6 +1,6 @@
 from random import randint
 from unittest import TestCase
-from helper import hash256, encode_base58, hash160, encode_base58_checksum, little_endian_to_int, int_to_little_endian
+from .helper import hash256, encode_base58, hash160, encode_base58_checksum, little_endian_to_int, int_to_little_endian
 from io import BytesIO
 
 import hashlib
