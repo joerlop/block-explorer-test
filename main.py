@@ -17,7 +17,7 @@ node = SimpleNode('46.248.170.225')
 node.handshake()
 # Get all the blocks, starting from the genesis block.
 """
-Get all block headers starting from the first one.
+Get all block headers starting from the first one..
 """
 while True:
     # If there are no objects in the db, we start asking for headers from the genesis block.
@@ -25,7 +25,7 @@ while True:
         getheaders = GetHeadersMessage(start_block=bytes.fromhex('000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'))
     # Else we start from the last added block.
     else:
-        block_hash = BlockRow.objects.all().order_by("-id")[0].hash_id
+        block_hash = BlockRow.objects.all().order_by("-pk_id")[0].hash_id
         getheaders = GetHeadersMessage(start_block=bytes.fromhex(block_hash))
     node.send(getheaders)
     received_headers = node.wait_for(HeadersMessage)
@@ -34,7 +34,7 @@ while True:
     for block in received_headers.blocks:
         # We check that the received block comes after the previous block in the blockchain.
         if len(BlockRow.objects.all()) > 0:
-            if BlockRow.objects.all().order_by('-id')[0].hash_id != block.prev_block.hex():
+            if BlockRow.objects.all().order_by('-pk_id')[0].hash_id != block.prev_block.hex():
                 raise ValueError('Block is not the next one in the blockchain.')
         if block.check_pow() is False:
             raise ValueError('Bad PoW for current block.')
